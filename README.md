@@ -1,4 +1,4 @@
-#TRACEFORGE
+TRACEFORGE
 Threat Detection & Response Platform
 
 TRACEFORGE is a lightweight Security Operations Center (SOC) investigation platform built in a controlled cybersecurity laboratory.
@@ -284,6 +284,7 @@ TRACEFORGE was developed and tested in an isolated, controlled cybersecurity lab
 All offensive-security activity referenced by this project was performed against intentionally vulnerable laboratory systems for authorized security research and defensive detection engineering.
 
 Do not use the techniques demonstrated by the laboratory against systems without explicit authorization.
+
 Author
 
 Codewith-Rutuja
