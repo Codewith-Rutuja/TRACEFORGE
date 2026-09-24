@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACEFORGE | SOC Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">T</div>
+            <div>
+                <h1>TRACEFORGE</h1>
+                <span>SOC OPERATIONS</span>
+            </div>
+        </div>
+
+        <nav>
+            <a class="active" href="/">Dashboard</a>
+            <a href="#incidents">Incidents</a>
+            <a href="#events">Event Stream</a>
+            <a href="#iocs">IOC Intelligence</a>
+        </nav>
+
+        <div class="lab-status">
+            <span class="status-dot"></span>
+            <div>
+                <strong>LAB ONLINE</strong>
+                <small>Isolated Environment</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">SECURITY OPERATIONS CENTER</p>
+                <h2>Threat Detection & Response</h2>
+            </div>
+
+            <div class="top-status">
+                <span class="pulse"></span>
+                LIVE MONITORING
+            </div>
+        </header>
+
+        <section class="hero">
+            <div>
+                <p class="eyebrow">TRACEFORGE / INCIDENT COMMAND</p>
+                <h3>Attack activity under investigation</h3>
+                <p>
+                    Controlled offensive-security activity is being correlated
+                    with defensive telemetry and forensic evidence.
+                </p>
+            </div>
+
+            <div class="hero-technique">
+                <span>MITRE ATT&CK</span>
+                <strong>{{ incidents[0].technique.split(' - ')[0] if incidents else '' }}</strong>
+                <small>
+                    {{ incidents[0].technique.split(' - ')[1] if incidents and ' - ' in incidents[0].technique else 'No technique mapped' }}
+                </small>
+            </div>
+        </section>
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <span>INCIDENTS</span>
+                <strong>{{ stats.incidents }}</strong>
+                <small>Total tracked incidents</small>
+            </div>
+
+            <div class="stat-card critical">
+                <span>CRITICAL</span>
+                <strong>{{ stats.critical }}</strong>
+                <small>Requires investigation</small>
+            </div>
+
+            <div class="stat-card">
+                <span>EVENTS</span>
+                <strong>{{ stats.events }}</strong>
+                <small>Security telemetry</small>
+            </div>
+
+            <div class="stat-card">
+                <span>IOCs</span>
+                <strong>{{ stats.iocs }}</strong>
+                <small>Evidence indicators</small>
+            </div>
+
+        </section>
+
+        <section class="panel" id="incidents">
+
+            <div class="panel-header">
+                <div>
+                    <p class="eyebrow">INCIDENT RESPONSE</p>
+                    <h3>Active Incidents</h3>
+                </div>
+                <span class="count">{{ incidents|length }} tracked</span>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>INCIDENT</th>
+                            <th>SEVERITY</th>
+                            <th>STATUS</th>
+                            <th>SOURCE</th>
+                            <th>TARGET</th>
+                            <th>TECHNIQUE</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for incident in incidents %}
+                        <tr>
+                            <td>
+                                <strong>{{ incident.title }}</strong>
+                                <small>{{ incident.created_at }}</small>
+                            </td>
+
+                            <td>
+                                <span class="badge critical-badge">
+                                    {{ incident.severity }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="badge status-badge">
+                                    {{ incident.status }}
+                                </span>
+                            </td>
+
+                            <td class="mono">{{ incident.source_ip }}</td>
+                            <td class="mono">{{ incident.target_ip }}</td>
+
+                            <td>
+                                <span class="technique">
+                                    {{ incident.technique }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <a class="investigate"
+                                   href="/incident/{{ incident.id }}">
+                                   INVESTIGATE 
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <section class="grid-two">
+
+            <div class="panel" id="events">
+
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">TELEMETRY</p>
+                        <h3>Recent Event Stream</h3>
+                    </div>
+                </div>
+
+                <div class="event-list">
+
+                {% for event in events %}
+
+                    <div class="event">
+
+                        <div class="event-marker"></div>
+
+                        <div class="event-content">
+
+                            <div class="event-top">
+                                <strong>{{ event.event_type }}</strong>
+                                <span>{{ event.created_at }}</span>
+                            </div>
+
+                            <p>{{ event.message }}</p>
+
+                            <div class="event-meta">
+                                <span>{{ event.source_ip }}</span>
+                                <span></span>
+                                <span>{{ event.target_ip }}</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <div class="panel" id="iocs">
+
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">THREAT INTELLIGENCE</p>
+                        <h3>IOC Evidence</h3>
+                    </div>
+                </div>
+
+                {% for ioc in iocs %}
+
+                <div class="ioc">
+
+                    <div class="ioc-icon">#</div>
+
+                    <div class="ioc-content">
+
+                        <div>
+                            <span class="ioc-type">{{ ioc.ioc_type }}</span>
+                            <span class="confidence">
+                                {{ ioc.confidence }} CONFIDENCE
+                            </span>
+                        </div>
+
+                        <code>{{ ioc.value }}</code>
+
+                        <small>
+                            Source: {{ ioc.source }}
+                        </small>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <footer>
+            TRACEFORGE  Controlled Security Research Environment
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>

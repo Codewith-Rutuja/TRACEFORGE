@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACEFORGE | Incident Investigation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .investigation-header {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 28px;
+            margin-bottom: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            font-size: 10px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .incident-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .incident-title h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .incident-title p {
+            color: var(--muted);
+            font-size: 12px;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+
+        .severity-large {
+            color: var(--danger);
+            border: 1px solid rgba(255,82,99,.3);
+            background: rgba(255,82,99,.08);
+            padding: 10px 14px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .evidence-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 18px;
+        }
+
+        .evidence-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 1.2px;
+            margin-bottom: 9px;
+        }
+
+        .evidence-card strong {
+            font-size: 13px;
+        }
+
+        .evidence-card code {
+            color: var(--accent);
+            font-size: 11px;
+        }
+
+        .investigation-grid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+        }
+
+        .timeline {
+            padding: 20px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 0 0 24px 25px;
+            border-left: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child {
+            border-left: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -4px;
+            top: 2px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(39,211,162,.5);
+        }
+
+        .timeline-item strong {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .timeline-item p {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .timeline-time {
+            color: var(--accent) !important;
+            font-family: Consolas, monospace;
+            font-size: 9px !important;
+            margin-bottom: 5px;
+        }
+
+        .ioc-detail {
+            padding: 20px;
+        }
+
+        .ioc-detail-box {
+            border: 1px solid var(--border);
+            background: #091019;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .ioc-detail-box span {
+            display: block;
+            color: var(--blue);
+            font-size: 9px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .ioc-detail-box code {
+            display: block;
+            color: #d9e2ed;
+            font-size: 10px;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+
+        .ioc-detail-box small {
+            display: block;
+            color: var(--muted);
+            margin-top: 8px;
+            font-size: 8px;
+        }
+
+        .mitre-box {
+            padding: 20px;
+        }
+
+        .mitre-id {
+            color: var(--accent);
+            font-size: 27px;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+
+        .mitre-name {
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .mitre-description {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .evidence-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .investigation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .evidence-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .incident-title {
+                display: block;
+            }
+
+            .severity-large {
+                display: inline-block;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">T</div>
+            <div>
+                <h1>TRACEFORGE</h1>
+                <span>SOC OPERATIONS</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a class="active" href="#">Incident Investigation</a>
+            <a href="/#events">Event Stream</a>
+            <a href="/#iocs">IOC Intelligence</a>
+        </nav>
+
+        <div class="lab-status">
+            <span class="status-dot"></span>
+            <div>
+                <strong>LAB ONLINE</strong>
+                <small>Isolated Environment</small>
+            </div>
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <p class="eyebrow">SECURITY OPERATIONS CENTER</p>
+                <h2>Incident Investigation</h2>
+            </div>
+
+            <div class="top-status">
+                <span class="pulse"></span>
+                INVESTIGATION ACTIVE
+            </div>
+
+        </header>
+
+
+        <section class="investigation-header">
+
+            <a class="back-link" href="/"> BACK TO DASHBOARD</a>
+
+            <div class="incident-title">
+
+                <div>
+
+                    <p class="eyebrow">INCIDENT #{{ incident.id }}</p>
+
+                    <h3>{{ incident.title }}</h3>
+
+                    <p>
+                        {{ incident.description }}
+                    </p>
+
+                </div>
+
+                <div class="severity-large">
+                    {{ incident.severity }}
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="evidence-grid">
+
+            <div class="evidence-card">
+                <span>SOURCE IP</span>
+                <strong class="mono">{{ incident.source_ip }}</strong>
+            </div>
+
+            <div class="evidence-card">
+                <span>TARGET IP</span>
+                <strong class="mono">{{ incident.target_ip }}</strong>
+            </div>
+
+            <div class="evidence-card">
+                <span>STATUS</span>
+                <strong>{{ incident.status }}</strong>
+            </div>
+
+            <div class="evidence-card">
+                <span>TECHNIQUE</span>
+                <strong>{{ incident.technique }}</strong>
+            </div>
+
+        </section>
+
+
+        <section class="investigation-grid">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <p class="eyebrow">FORENSIC TIMELINE</p>
+                        <h3>Attack Activity</h3>
+                    </div>
+
+                </div>
+
+                <div class="timeline">
+
+                    {% for event in events %}
+
+                    <div class="timeline-item">
+
+                        <div class="timeline-dot"></div>
+
+                        <p class="timeline-time">
+                            {{ event.created_at }}
+                        </p>
+
+                        <strong>{{ event.event_type }}</strong>
+
+                        <p>
+                            {{ event.message }}
+                        </p>
+
+                        <p>
+                            Source:
+                            <span class="mono">{{ event.source_ip }}</span>
+                            
+                            Target:
+                            <span class="mono">{{ event.target_ip }}</span>
+                        </p>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <p class="eyebrow">MITRE ATT&CK</p>
+                            <h3>Technique Mapping</h3>
+                        </div>
+
+                    </div>
+
+                    <div class="mitre-box">
+
+                        <div class="mitre-id">
+    {{ incident.technique.split(' - ')[0] }}
+</div>
+
+<div class="mitre-name">
+    {% if incident.technique.startswith('T1046') %}
+        Network Service Scanning
+    {% elif incident.technique.startswith('T1190') %}
+        Exploit Public-Facing Application
+    {% else %}
+        {{ incident.technique }}
+    {% endif %}
+</div>
+
+                        <p class="mitre-description">
+                            TRACEFORGE mapped the observed exploitation
+                            activity to a MITRE ATT&CK technique for
+                            investigation and detection engineering.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <p class="eyebrow">IOC EXTRACTION</p>
+                            <h3>Evidence Indicators</h3>
+                        </div>
+
+                    </div>
+
+                    <div class="ioc-detail">
+
+                        {% for ioc in iocs %}
+
+                        <div class="ioc-detail-box">
+
+                            <span>{{ ioc.ioc_type }}</span>
+
+                            <code>{{ ioc.value }}</code>
+
+                            <small>
+                                Source: {{ ioc.source }} |
+                                Confidence: {{ ioc.confidence }}
+                            </small>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+            TRACEFORGE  Controlled Security Research Environment
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>
