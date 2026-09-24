@@ -2,8 +2,10 @@ TRACEFORGE
 Threat Detection & Response Platform
 
 TRACEFORGE is a lightweight Security Operations Center (SOC) investigation platform built in a controlled cybersecurity laboratory.
-
 It ingests security telemetry, detects selected attack patterns, creates incidents, maps activity to MITRE ATT&CK techniques, stores indicators of compromise, and presents investigation evidence through a SOC-style web dashboard.
+
+Dashboard
+![TRACEFORGE SOC Dashboard](traceforgeimg.jpeg)
 
 Features
 Security event ingestion through REST APIs
