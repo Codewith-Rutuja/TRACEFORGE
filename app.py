@@ -4,6 +4,18 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+def mask_ip(ip):
+    """Mask IPv4 addresses for public-facing UI while preserving the first octet."""
+    if not ip:
+        return ip
+    parts = str(ip).split(".")
+    if len(parts) == 4:
+        return parts[0] + ".x.x.x"
+    return ip
+
+app.jinja_env.filters["mask_ip"] = mask_ip
+
+
 DB = "traceforge.db"
 
 

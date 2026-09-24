@@ -292,12 +292,12 @@
 
             <div class="evidence-card">
                 <span>SOURCE IP</span>
-                <strong class="mono">{{ incident.source_ip }}</strong>
+                <strong class="mono">{{ incident.source_ip|mask_ip }}</strong>
             </div>
 
             <div class="evidence-card">
                 <span>TARGET IP</span>
-                <strong class="mono">{{ incident.target_ip }}</strong>
+                <strong class="mono">{{ incident.target_ip|mask_ip }}</strong>
             </div>
 
             <div class="evidence-card">
@@ -346,10 +346,10 @@
 
                         <p>
                             Source:
-                            <span class="mono">{{ event.source_ip }}</span>
+                            <span class="mono">{{ event.source_ip|mask_ip }}</span>
                             
                             Target:
-                            <span class="mono">{{ event.target_ip }}</span>
+                            <span class="mono">{{ event.target_ip|mask_ip }}</span>
                         </p>
 
                     </div>

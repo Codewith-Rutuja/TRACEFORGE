@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body id="top">
+<body>
 
 <div class="app">
 
@@ -21,10 +21,10 @@
         </div>
 
         <nav>
-            <a class="nav-link active" href="#top">Dashboard</a>
-            <a class="nav-link" href="#incidents">Incidents</a>
-            <a class="nav-link" href="#events">Event Stream</a>
-            <a class="nav-link" href="#iocs">IOC Intelligence</a>
+            <a class="active" href="/">Dashboard</a>
+            <a href="#incidents">Incidents</a>
+            <a href="#events">Event Stream</a>
+            <a href="#iocs">IOC Intelligence</a>
         </nav>
 
         <div class="lab-status">
@@ -141,8 +141,8 @@
                                 </span>
                             </td>
 
-                            <td class="mono">{{ incident.source_ip|mask_ip }}</td>
-                            <td class="mono">{{ incident.target_ip|mask_ip }}</td>
+                            <td class="mono">{{ incident.source_ip }}</td>
+                            <td class="mono">{{ incident.target_ip }}</td>
 
                             <td>
                                 <span class="technique">
@@ -153,7 +153,7 @@
                             <td>
                                 <a class="investigate"
                                    href="/incident/{{ incident.id }}">
-                                   <span class="investigate-btn">INVESTIGATE <span class="btn-arrow"></span></span> 
+                                   INVESTIGATE 
                                 </a>
                             </td>
                         </tr>
@@ -193,9 +193,9 @@
                             <p>{{ event.message }}</p>
 
                             <div class="event-meta">
-                                <span>{{ event.source_ip|mask_ip }}</span>
+                                <span>{{ event.source_ip }}</span>
                                 <span></span>
-                                <span>{{ event.target_ip|mask_ip }}</span>
+                                <span>{{ event.target_ip }}</span>
                             </div>
 
                         </div>
@@ -233,7 +233,7 @@
                             </span>
                         </div>
 
-                        <code>{{ ioc.value|mask_ip if ioc.type == 'IP' else ioc.value }}</code>
+                        <code>{{ ioc.value }}</code>
 
                         <small>
                             Source: {{ ioc.source }}
